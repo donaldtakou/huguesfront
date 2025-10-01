@@ -1,0 +1,9 @@
+[build]
+buildCommand = "npm run build"
+publishPath = ".next"
+
+[deploy]
+cmd = "npm start"
+
+[env]
+NODE_ENV = "production"

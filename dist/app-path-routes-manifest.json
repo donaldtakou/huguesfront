@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/about/page": "/about",
+  "/admin/page": "/admin",
+  "/auth/login/page": "/auth/login",
+  "/auth/page": "/auth",
+  "/auth/register/page": "/auth/register",
+  "/cart/page": "/cart",
+  "/categories/page": "/categories",
+  "/contact/page": "/contact",
+  "/dashboard/page": "/dashboard",
+  "/page": "/",
+  "/products/[id]/page": "/products/[id]",
+  "/products/page": "/products",
+  "/sell/page": "/sell"
+}

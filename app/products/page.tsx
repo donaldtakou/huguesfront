@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Filter, Search, Grid, List, ChevronDown, SlidersHorizontal, Plus, Heart } from 'lucide-react';
+import { Filter, Search, Grid, List, ChevronDown, SlidersHorizontal, Plus, Heart, RefreshCw } from 'lucide-react';
 import { useProducts } from '@/hooks';
 import { useCartStore } from '@/store/cartStore';
 import { formatPrice, getCategoryLabel, getConditionLabel, getConditionColor } from '@/lib/utils';
@@ -22,8 +22,25 @@ function ProductsContent() {
     sortOrder: 'desc',
   });
 
-  const { products, pagination, isLoading, error } = useProducts(filters);
+  const { products, pagination, isLoading, error, refreshProducts, lastUpdate } = useProducts(filters);
   const { addItem } = useCartStore();
+
+  // Notification des mises à jour automatiques
+  useEffect(() => {
+    if (lastUpdate) {
+      const timeSinceLoad = Date.now() - lastUpdate.getTime();
+      // Si la mise à jour est récente (moins de 5 secondes), c'était probablement automatique
+      if (timeSinceLoad < 5000) {
+        const timeAgo = Math.floor(timeSinceLoad / 1000);
+        if (timeAgo > 0) {
+          toast.success(`Catalogue actualisé automatiquement`, {
+            icon: '🔄',
+            duration: 2000,
+          });
+        }
+      }
+    }
+  }, [lastUpdate]);
 
   const categories = [
     { value: '', label: 'Toutes les catégories' },
@@ -211,6 +228,19 @@ function ProductsContent() {
                 </div>
 
                 <div className="flex items-center space-x-4">
+                  {/* Refresh Button */}
+                  <button
+                    onClick={() => {
+                      refreshProducts();
+                      toast.success('Catalogue mis à jour!');
+                    }}
+                    disabled={isLoading}
+                    className="flex items-center space-x-2 px-4 py-2 text-green-900 bg-green-50 border border-green-200 rounded-xl hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">Actualiser</span>
+                  </button>
+
                   {/* Sort */}
                   <select
                     value={`${filters.sortBy}-${filters.sortOrder}`}

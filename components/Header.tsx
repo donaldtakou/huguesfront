@@ -90,13 +90,13 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
     } ${className}`}>
       <div className="border-b border-gray-200">
         {/* Container principal responsive */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-18">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 lg:h-18">
             
-            {/* Logo - Responsive */}
-            <div className="flex-shrink-0">
+            {/* Logo - Plus d'espace à gauche sur mobile */}
+            <div className="flex-shrink-0 mr-4 sm:mr-6">
               <Link href="/" className="block">
-                <Logo size="md" className="h-8 w-auto sm:h-10 lg:h-12" />
+                <Logo size="md" className="h-7 w-auto sm:h-8 lg:h-10" />
               </Link>
             </div>
 
@@ -131,36 +131,45 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </div>
 
             {/* Actions droite - Optimisées pour mobile */}
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
               
-              {/* Panier - Toujours visible */}
+              {/* Recherche mobile */}
+              <button
+                onClick={() => {/* Ouvrir modal de recherche */}}
+                className="lg:hidden p-2 text-gray-700 hover:text-green-900 transition-colors rounded-lg hover:bg-gray-100"
+                aria-label="Rechercher"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+              
+              {/* Panier - Spacing amélioré */}
               <button
                 onClick={toggleCart}
-                className="relative p-2.5 text-gray-700 hover:text-green-900 transition-colors rounded-lg hover:bg-gray-100"
+                className="relative p-2 sm:p-2.5 text-gray-700 hover:text-green-900 transition-colors rounded-lg hover:bg-gray-100"
                 aria-label={`Panier (${totalItems} articles)`}
               >
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
                 {isHydrated && totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center min-w-[20px]">
+                  <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center min-w-[16px] sm:min-w-[20px]">
                     {totalItems > 99 ? '99+' : totalItems}
                   </span>
                 )}
               </button>
 
-              {/* Menu utilisateur ou bouton connexion */}
+              {/* Menu utilisateur ou bouton connexion - Spacing amélioré */}
               {user ? (
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center space-x-2 p-2 text-gray-700 hover:text-green-900 transition-colors rounded-lg hover:bg-gray-100"
+                    className="flex items-center space-x-1 sm:space-x-2 p-1.5 sm:p-2 text-gray-700 hover:text-green-900 transition-colors rounded-lg hover:bg-gray-100"
                     aria-label="Menu utilisateur"
                   >
-                    <div className="w-8 h-8 bg-green-900 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-900 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs sm:text-sm font-medium">
                         {user.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
                       </span>
                     </div>
-                    <ChevronDown className="w-4 h-4 hidden sm:block" />
+                    <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 hidden sm:block" />
                   </button>
                   
                   {/* Dropdown menu utilisateur */}
@@ -202,18 +211,18 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
               ) : (
                 <Link
                   href="/auth"
-                  className="bg-green-900 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg hover:bg-green-800 transition-colors font-medium text-sm whitespace-nowrap flex items-center space-x-1"
+                  className="bg-green-900 text-white px-2.5 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg hover:bg-green-800 transition-colors font-medium text-xs sm:text-sm whitespace-nowrap flex items-center space-x-1"
                 >
-                  <User className="w-4 h-4" />
+                  <User className="w-3 h-3 sm:w-4 sm:h-4" />
                   <span className="hidden xs:inline">Se connecter</span>
-                  <span className="xs:hidden">Connexion</span>
+                  <span className="xs:hidden text-xs">Connexion</span>
                 </Link>
               )}
 
-              {/* Bouton menu mobile - Amélioré */}
+              {/* Bouton menu mobile - Amélioré avec plus d'espacement */}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden p-2.5 text-gray-700 hover:text-green-900 transition-colors bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 ml-1"
+                className="lg:hidden p-2 sm:p-2.5 text-gray-700 hover:text-green-900 transition-colors bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 ml-2"
                 aria-label="Menu de navigation"
               >
                 {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -221,36 +230,36 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </div>
           </div>
 
-          {/* Barre de recherche mobile */}
-          <div className="lg:hidden pb-4 px-1">
+          {/* Barre de recherche mobile - Améliorée pour petits écrans */}
+          <div className="lg:hidden pb-3 px-2">
             <form onSubmit={handleSearch}>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Rechercher des produits..."
-                  className="w-full pl-10 pr-4 py-3 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-900 focus:border-transparent bg-gray-50 focus:bg-white transition-all"
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-900 focus:border-transparent bg-gray-50 focus:bg-white transition-all"
                 />
               </div>
             </form>
           </div>
         </div>
 
-        {/* Menu de navigation mobile - Responsive amélioré */}
+        {/* Menu de navigation mobile - Responsive amélioré pour tous les écrans */}
         <div className={`lg:hidden bg-white border-t border-gray-200 shadow-lg transition-all duration-300 ease-in-out ${
           isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
         }`}>
-          <div className="px-4 py-4 space-y-2 max-h-[80vh] overflow-y-auto">
+          <div className="px-3 sm:px-4 py-3 sm:py-4 space-y-2 max-h-[80vh] overflow-y-auto">
             
-            {/* Liens de navigation */}
+            {/* Liens de navigation - Plus compacts sur mobile */}
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-green-900 rounded-xl transition-all duration-200 font-medium border border-gray-200 hover:border-green-900 text-base"
+                className="block px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:text-white hover:bg-green-900 rounded-lg sm:rounded-xl transition-all duration-200 font-medium border border-gray-200 hover:border-green-900 text-sm sm:text-base"
               >
                 {item.name}
               </Link>
@@ -258,19 +267,19 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             
             {/* Menu utilisateur connecté */}
             {user && (
-              <div className="border-t border-gray-200 pt-4 mt-4">
+              <div className="border-t border-gray-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
                 <div className="space-y-2">
                   <Link
                     href="/dashboard"
                     onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-green-900 rounded-xl transition-all duration-200 font-medium border border-gray-200 hover:border-green-900"
+                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:text-white hover:bg-green-900 rounded-lg sm:rounded-xl transition-all duration-200 font-medium border border-gray-200 hover:border-green-900 text-sm sm:text-base"
                   >
                     📊 Mon tableau de bord
                   </Link>
                   <Link
                     href="/sell"
                     onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-3 text-gray-700 hover:text-white hover:bg-green-900 rounded-xl transition-all duration-200 font-medium border border-gray-200 hover:border-green-900"
+                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:text-white hover:bg-green-900 rounded-lg sm:rounded-xl transition-all duration-200 font-medium border border-gray-200 hover:border-green-900 text-sm sm:text-base"
                   >
                     💰 Vendre un produit
                   </Link>
@@ -278,23 +287,23 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
               </div>
             )}
 
-            {/* Actions rapides */}
-            <div className="border-t border-gray-200 pt-4 mt-4">
-              <div className="space-y-3">
+            {/* Actions rapides - Taille adaptée */}
+            <div className="border-t border-gray-200 pt-3 sm:pt-4 mt-3 sm:mt-4">
+              <div className="space-y-2 sm:space-y-3">
                 {!user && (
                   <Link
                     href="/auth"
                     onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-center w-full px-4 py-3 bg-green-900 text-white rounded-xl hover:bg-green-800 transition-colors font-medium"
+                    className="flex items-center justify-center w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-green-900 text-white rounded-lg sm:rounded-xl hover:bg-green-800 transition-colors font-medium text-sm sm:text-base"
                   >
-                    <User className="w-5 h-5 mr-2" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Se connecter
                   </Link>
                 )}
                 <Link
                   href="/contact"
                   onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center justify-center w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                  className="flex items-center justify-center w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-100 text-gray-700 rounded-lg sm:rounded-xl hover:bg-gray-200 transition-colors font-medium text-sm sm:text-base"
                 >
                   📞 Nous contacter
                 </Link>

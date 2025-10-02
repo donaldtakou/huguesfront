@@ -29,12 +29,15 @@ import {
   Image as ImageIcon,
   Trash2,
   AlertTriangle,
-  Edit
+  Edit,
+  LogOut
 } from 'lucide-react';
 // import { CONTACT_INFO } from '@/lib/demoData';
 import adminEndpoints from '@/lib/adminAPI';
 import { toast } from 'react-hot-toast';
 import { Product } from '@/types';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import AdminLogin from '@/components/AdminLogin';
 
 // Temporary inline CONTACT_INFO to avoid import issues
 const CONTACT_INFO = {
@@ -64,10 +67,18 @@ interface NewProduct {
 }
 
 export default function AdminPage() {
-  // Mode développement - accès direct sans authentification
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Accès direct
-  const [userRole, setUserRole] = useState('admin'); // Role admin direct
+  const { isAuthenticated, login, logout, checkAuthStatus, isLoading: authLoading } = useAdminAuth();
+  const [showAdmin, setShowAdmin] = useState(false);
   
+  console.log('État d\'authentification admin:', isAuthenticated);
+  
+  // Réagir aux changements d'authentification
+  useEffect(() => {
+    console.log('useEffect déclenché, isAuthenticated:', isAuthenticated);
+    setShowAdmin(isAuthenticated);
+  }, [isAuthenticated]);
+  
+  // États pour la page admin
   const [activeTab, setActiveTab] = useState('dashboard');
   const [editMode, setEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -965,31 +976,9 @@ export default function AdminPage() {
   );
 
   // Temporary authentication bypass for development
-  // TODO: Remove in production and implement proper auth check
-  if (!isAuthenticated || userRole !== 'admin') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Mode Développement - Accès Admin
-            </h1>
-            <p className="text-gray-600 mb-6">
-              Cliquez sur le bouton ci-dessous pour accéder à l'interface d'administration en mode développement.
-            </p>
-            <button
-              onClick={() => {
-                setIsAuthenticated(true);
-                setUserRole('admin');
-              }}
-              className="bg-green-900 text-white px-6 py-3 rounded-xl hover:bg-green-800 transition-colors"
-            >
-              Accéder en mode développement
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  // Si pas authentifié, afficher la page de connexion
+  if (!showAdmin) {
+    return <AdminLogin />;
   }
 
   return (
@@ -1007,6 +996,7 @@ export default function AdminPage() {
               </span>
             </div>
             
+            {/* Bouton de déconnexion et statut serveur */}
             <div className="flex items-center space-x-4">
               {/* Server Status Indicator */}
               <div className="flex items-center space-x-2">
@@ -1030,6 +1020,14 @@ export default function AdminPage() {
               >
                 Voir le site
               </Link>
+              
+              <button
+                onClick={logout}
+                className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Déconnexion</span>
+              </button>
             </div>
           </div>
         </div>

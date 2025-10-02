@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ShoppingBag, 
   Plus, 
@@ -13,16 +14,21 @@ import {
   Shield, 
   Gift,
   AlertCircle,
-  Check
+  Check,
+  User
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PaymentModal from '@/components/PaymentModal';
+import AuthRequiredModal from '@/components/AuthRequiredModal';
 import { useCartStore } from '@/store/cartStore';
+import { useAuth } from '@/hooks/useAuth';
 import { formatPrice, getCategoryLabel } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 
 export default function CartPage() {
+  const router = useRouter();
+  const { isAuthenticated, user } = useAuth();
   const { 
     items, 
     updateQuantity, 
@@ -36,12 +42,23 @@ export default function CartPage() {
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   const totalPrice = getTotalPrice();
   const totalItems = getTotalItems();
   const shippingCost = totalPrice >= 50 ? 0 : 5.99;
   const discount = appliedPromo ? totalPrice * 0.1 : 0; // 10% discount example
   const finalTotal = totalPrice + shippingCost - discount;
+
+  // Vérifier s'il y a un checkout en attente après connexion
+  useEffect(() => {
+    const pendingCheckout = localStorage.getItem('pendingCheckout');
+    if (pendingCheckout === 'true' && isAuthenticated) {
+      localStorage.removeItem('pendingCheckout');
+      toast.success(`Bienvenue ${user?.firstName || 'sur FastDeal'} ! Vous pouvez maintenant finaliser votre commande.`);
+      setShowPaymentModal(true);
+    }
+  }, [isAuthenticated, user]);
 
   const handleApplyPromo = () => {
     if (promoCode.toLowerCase() === 'welcome10') {
@@ -54,7 +71,29 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
+    // Vérifier si l'utilisateur est authentifié avant de procéder au paiement
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
+    
+    // Si authentifié, procéder directement au paiement
     setShowPaymentModal(true);
+  };
+
+  const handleAuthRequired = (action: 'login' | 'register') => {
+    // Sauvegarder l'intention d'achat pour rediriger après connexion
+    localStorage.setItem('pendingCheckout', 'true');
+    
+    if (action === 'login') {
+      router.push('/auth/login?redirect=/cart');
+    } else {
+      router.push('/auth/register?redirect=/cart');
+    }
+  };
+
+  const handleCloseAuthPrompt = () => {
+    setShowAuthPrompt(false);
   };
 
   const handlePaymentSuccess = (paymentData: any) => {
@@ -362,11 +401,29 @@ export default function CartPage() {
                 disabled={isCheckingOut}
                 className="w-full mt-6 bg-green-900 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
-                <CreditCard className="w-5 h-5" />
+                {isAuthenticated ? (
+                  <CreditCard className="w-5 h-5" />
+                ) : (
+                  <User className="w-5 h-5" />
+                )}
                 <span>
-                  {isCheckingOut ? 'Traitement...' : 'Passer la commande'}
+                  {isCheckingOut ? 'Traitement...' : 
+                   isAuthenticated ? 'Passer la commande' : 
+                   'Se connecter et commander'}
                 </span>
               </button>
+
+              {/* Indicateur d'authentification */}
+              {isAuthenticated && user && (
+                <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-green-800">
+                    <Check className="w-4 h-4" />
+                    <span className="text-sm">
+                      Connecté en tant que <span className="font-medium">{user.firstName} {user.lastName}</span>
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Security Info */}
               <div className="mt-4 text-center">
@@ -413,6 +470,14 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      <AuthRequiredModal
+        isOpen={showAuthPrompt}
+        onClose={handleCloseAuthPrompt}
+        onLogin={() => handleAuthRequired('login')}
+        onRegister={() => handleAuthRequired('register')}
+        context="cart"
+      />
 
       <PaymentModal
         isOpen={showPaymentModal}

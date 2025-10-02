@@ -40,11 +40,11 @@ adminAPI.interceptors.response.use(
 
 // API endpoints pour l'admin
 export const adminEndpoints = {
-  // Produits - utiliser les routes publiques existantes
-  getProducts: () => adminAPI.get(''), // GET /api/products
+  // Produits - utiliser les routes de développement
+  getProducts: () => adminAPI.get(''), // GET /api/products (route publique existante)
   createProduct: (data: any) => adminAPI.post('/dev-create', data), // POST /api/products/dev-create
-  updateProduct: (id: string, data: any) => adminAPI.put(`/${id}`, data), // PUT /api/products/:id
-  deleteProduct: (id: string) => adminAPI.delete(`/${id}`), // DELETE /api/products/:id
+  updateProduct: (id: string, data: any) => adminAPI.put(`/dev-update/${id}`, data), // PUT /api/products/dev-update/:id
+  deleteProduct: (id: string) => adminAPI.delete(`/dev-delete/${id}`), // DELETE /api/products/dev-delete/:id
   
   // Upload de fichiers
   uploadProductImage: (formData: FormData) => adminAPI.post('/upload', formData, {

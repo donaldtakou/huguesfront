@@ -22,6 +22,10 @@ body {
    STYLES RESPONSIVE OPTIMISÉS
 ======================================== */
 
+/* ========================================
+   STYLES RESPONSIVE OPTIMISÉS - HEADER MOBILE
+======================================== */
+
 /* Mobile First - Très petits écrans (320px+) */
 @media (max-width: 374px) {
   .container {
@@ -29,16 +33,43 @@ body {
     padding-right: 0.75rem;
   }
   
-  /* Texte plus petit sur très petits écrans */
-  body {
-    font-size: 14px;
-    line-height: 1.4;
+  /* Header compact pour très petits écrans */
+  .mobile-header-compact {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    min-height: 3.5rem;
+  }
+  
+  /* Logo plus petit */
+  .mobile-logo-xs {
+    height: 1.75rem;
+    width: auto;
   }
   
   /* Boutons plus compacts */
   .btn-mobile-compact {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Icônes plus petites */
+  .icon-mobile-xs {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  /* Badge panier plus petit */
+  .cart-badge-xs {
+    width: 0.875rem;
+    height: 0.875rem;
+    font-size: 0.625rem;
+    min-width: 0.875rem;
+  }
+  
+  /* Texte plus petit sur très petits écrans */
+  body {
+    font-size: 14px;
+    line-height: 1.4;
   }
 }
 
@@ -48,6 +79,49 @@ body {
     padding-left: 1rem;
     padding-right: 1rem;
   }
+  
+  /* Header mobile standard */
+  .mobile-header-standard {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  /* Menu mobile optimisé */
+  .mobile-menu-item {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Tablettes (641px - 1024px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Navigation plus compacte sur tablette */
+  .tablet-nav-compact {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Classes utilitaires pour le header responsive */
+.header-flex-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .header-flex-mobile {
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-flex-mobile {
+    gap: 1rem;
+  }
+}
   
   /* Amélioration des boutons sur mobile */
   button, .btn {

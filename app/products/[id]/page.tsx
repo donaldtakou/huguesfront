@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -20,22 +20,32 @@ import {
   Monitor,
   Watch,
   Laptop,
-  Tablet
+  Tablet,
+  ShoppingCart,
+  User
 } from 'lucide-react';
 import Logo from '@/components/Logo';
+import AuthRequiredModal from '@/components/AuthRequiredModal';
 import api from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
+import { useCartStore } from '@/store/cartStore';
 import { formatPrice, getCategoryLabel, getConditionLabel, getConditionColor, formatDate } from '@/lib/utils';
 import { Product } from '@/types';
 import { toast } from 'react-hot-toast';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
+  const { isAuthenticated, user } = useAuth();
+  const { addItem } = useCartStore();
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -112,6 +122,52 @@ export default function ProductDetailPage() {
       );
     }
   };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    // Vérifier si l'utilisateur est authentifié
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
+
+    // Ajouter au panier si authentifié
+    addItem(product);
+    toast.success('Produit ajouté au panier !');
+  };
+
+  const handleAuthRequired = (action: 'login' | 'register') => {
+    // Sauvegarder l'intention d'achat pour rediriger après connexion
+    if (product) {
+      localStorage.setItem('pendingAddToCart', JSON.stringify(product));
+    }
+    
+    if (action === 'login') {
+      router.push(`/auth/login?redirect=/products/${id}`);
+    } else {
+      router.push(`/auth/register?redirect=/products/${id}`);
+    }
+  };
+
+  const handleCloseAuthPrompt = () => {
+    setShowAuthPrompt(false);
+  };
+
+  // Vérifier s'il y a un produit en attente d'ajout au panier après connexion
+  useEffect(() => {
+    const pendingProduct = localStorage.getItem('pendingAddToCart');
+    if (pendingProduct && isAuthenticated) {
+      try {
+        const productToAdd = JSON.parse(pendingProduct);
+        localStorage.removeItem('pendingAddToCart');
+        addItem(productToAdd);
+        toast.success(`${productToAdd.name} a été ajouté à votre panier !`);
+      } catch (error) {
+        console.error('Erreur lors de l\'ajout du produit en attente:', error);
+      }
+    }
+  }, [isAuthenticated, addItem]);
 
   if (isLoading) {
     return (
@@ -356,9 +412,32 @@ export default function ProductDetailPage() {
               <button className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
                 Contacter le vendeur
               </button>
-              <button className="w-full border border-blue-600 text-blue-600 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-                Ajouter au panier
+              
+              <button 
+                onClick={handleAddToCart}
+                className="w-full border border-blue-600 text-blue-600 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center space-x-2"
+              >
+                {isAuthenticated ? (
+                  <ShoppingCart className="w-5 h-5" />
+                ) : (
+                  <User className="w-5 h-5" />
+                )}
+                <span>
+                  {isAuthenticated ? 'Ajouter au panier' : 'Se connecter pour acheter'}
+                </span>
               </button>
+
+              {/* Indicateur d'authentification */}
+              {isAuthenticated && user && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center space-x-2 text-green-800">
+                    <ShoppingCart className="w-4 h-4" />
+                    <span className="text-sm">
+                      Connecté en tant que <span className="font-medium">{user.firstName} {user.lastName}</span>
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Product Features */}
@@ -530,6 +609,14 @@ export default function ProductDetailPage() {
           )}
         </div>
       )}
+
+      <AuthRequiredModal
+        isOpen={showAuthPrompt}
+        onClose={handleCloseAuthPrompt}
+        onLogin={() => handleAuthRequired('login')}
+        onRegister={() => handleAuthRequired('register')}
+        context="product"
+      />
     </div>
   );
 }

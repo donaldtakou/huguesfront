@@ -85,13 +85,13 @@ export default function CategoriesPage() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categories.map((category) => {
+            {categories.filter(category => category && category.id).map((category, index) => {
               const Icon = categoryIcons[category.id as keyof typeof categoryIcons] || Package;
               const colorClass = categoryColors[category.id as keyof typeof categoryColors] || 'from-green-900 to-green-800';
               
               return (
                 <Link
-                  key={category.id}
+                  key={category.id || `category-${index}`}
                   href={`/products?category=${category.id}`}
                   className="group bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                 >

@@ -22,6 +22,7 @@ import {
 import Logo from '@/components/Logo';
 import api from '@/lib/api';
 import { toast } from 'react-hot-toast';
+import ProductImage from '@/components/ProductImage';
 
 interface ProductFormData {
   name: string;

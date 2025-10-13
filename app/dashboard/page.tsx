@@ -23,6 +23,7 @@ import { useAuth } from '@/hooks';
 import { useProducts } from '@/hooks';
 import { formatPrice, getCategoryLabel, getConditionLabel, formatDate } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
+import ProductImage from '@/components/ProductImage';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -155,13 +156,12 @@ export default function DashboardPage() {
               {userProducts.slice(0, 5).map((product) => (
                 <div key={product._id} className="flex items-center space-x-4 p-4 rounded-lg hover:bg-gray-50">
                   <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
-                    {product.images.length > 0 && (
-                      <img
-                        src={product.images[0].url}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
+                    <ProductImage
+                      src={product.images?.[0]?.url}
+                      alt={product.name}
+                      className="w-full h-full"
+                      category={product.category}
+                    />
                   </div>
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900">{product.name}</h4>
@@ -253,13 +253,12 @@ export default function DashboardPage() {
                     <td className="py-4 px-6">
                       <div className="flex items-center space-x-3">
                         <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden">
-                          {product.images.length > 0 && (
-                            <img
-                              src={product.images[0].url}
-                              alt={product.name}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
+                          <ProductImage
+                            src={product.images?.[0]?.url}
+                            alt={product.name}
+                            className="w-full h-full"
+                            category={product.category}
+                          />
                         </div>
                         <div>
                           <div className="font-medium text-gray-900">{product.name}</div>

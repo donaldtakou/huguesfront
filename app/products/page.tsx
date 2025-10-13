@@ -9,6 +9,7 @@ import { useCartStore } from '@/store/cartStore';
 import { formatPrice, getCategoryLabel, getConditionLabel, getConditionColor } from '@/lib/utils';
 import { ProductFilters, Product } from '@/types';
 import { toast } from 'react-hot-toast';
+import ProductImage from '@/components/ProductImage';
 
 function ProductsContent() {
   const searchParams = useSearchParams();
@@ -302,13 +303,13 @@ function ProductsContent() {
                     {products.map((product: Product) => (
                       <div key={product._id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
                         <div className="relative">
-                          {product.images.length > 0 && (
-                            <img
-                              src={product.images.find((img: any) => img.isPrimary)?.url || product.images[0]?.url}
-                              alt={product.name}
-                              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          )}
+                          <ProductImage
+                            src={product.images?.find((img: any) => img.isPrimary)?.url || product.images?.[0]?.url}
+                            alt={product.name}
+                            className="w-full h-48 group-hover:scale-105 transition-transform duration-300"
+                            priority={false}
+                            category={product.category}
+                          />
                           <div className="absolute top-4 left-4">
                             <span className="bg-green-900 text-white text-xs font-bold px-3 py-1 rounded-full">
                               {getCategoryLabel(product.category)}
@@ -371,13 +372,13 @@ function ProductsContent() {
                       <div key={product._id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                         <div className="flex flex-col md:flex-row">
                           <div className="md:w-1/3 relative">
-                            {product.images.length > 0 && (
-                              <img
-                                src={product.images.find((img: any) => img.isPrimary)?.url || product.images[0]?.url}
-                                alt={product.name}
-                                className="w-full h-48 md:h-full object-cover"
-                              />
-                            )}
+                            <ProductImage
+                              src={product.images?.find((img: any) => img.isPrimary)?.url || product.images?.[0]?.url}
+                              alt={product.name}
+                              className="w-full h-48 md:h-full"
+                              priority={false}
+                              category={product.category}
+                            />
                             <div className="absolute top-4 left-4">
                               <span className="bg-green-900 text-white text-xs font-bold px-3 py-1 rounded-full">
                                 {getCategoryLabel(product.category)}

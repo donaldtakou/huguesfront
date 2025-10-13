@@ -9,15 +9,34 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
-        'xs': '375px',    // Très petits téléphones
-        'xxs': '320px',   // Téléphones ultra-compacts
+        'xxs': '320px',   // iPhone SE, très petits téléphones
+        'xs': '375px',    // iPhone 12 mini, petits téléphones
+        'sm': '640px',    // Tablettes petites
+        'md': '768px',    // Tablettes standard
+        'lg': '1024px',   // Desktop petit
+        'xl': '1280px',   // Desktop standard
+        '2xl': '1536px',  // Desktop large
+        // Breakpoints spécifiques pour mobiles
+        'mobile-xs': { 'max': '374px' },     // Très petits mobiles uniquement
+        'mobile-sm': { 'min': '375px', 'max': '639px' }, // Mobiles standards
+        'tablet': { 'min': '640px', 'max': '1023px' },   // Tablettes
       },
       spacing: {
         '18': '4.5rem',
         '88': '22rem',
+        '0.25': '0.0625rem',  // 1px
+        '0.75': '0.1875rem',  // 3px
+        '1.25': '0.3125rem',  // 5px
+        '2.25': '0.5625rem',  // 9px
+        '3.25': '0.8125rem',  // 13px
+        '4.25': '1.0625rem',  // 17px
       },
       fontSize: {
-        'xxs': '0.625rem',
+        'xxs': ['0.625rem', { lineHeight: '0.75rem' }],  // 10px
+        'xs': ['0.75rem', { lineHeight: '1rem' }],       // 12px
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],   // 14px
+        'tiny': ['0.6875rem', { lineHeight: '0.875rem' }], // 11px
+        'micro': ['0.5625rem', { lineHeight: '0.6875rem' }], // 9px
       },
       colors: {
         green: {

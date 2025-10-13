@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import Cart from '@/components/Cart';
 import Chatbot from '@/components/Chatbot';
+import LayoutContent from '@/components/LayoutContent';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,16 +40,8 @@ export default function RootLayout({
   return (
     <html lang="fr" className={inter.variable}>
       <body className="font-sans antialiased">
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </div>
-        <Cart />
-        <Chatbot />
-        <Toaster
+        <LayoutContent>{children}</LayoutContent>
+        <Toaster 
           position="top-right"
           toastOptions={{
             duration: 4000,
@@ -58,18 +49,10 @@ export default function RootLayout({
               background: '#363636',
               color: '#fff',
             },
-            success: {
-              style: {
-                background: '#065f46',
-              },
-            },
-            error: {
-              style: {
-                background: '#dc2626',
-              },
-            },
           }}
         />
+        <Cart />
+        <Chatbot />
       </body>
     </html>
   );

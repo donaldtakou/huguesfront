@@ -22,22 +22,41 @@ import {
   Laptop,
   Tablet,
   ShoppingCart,
-  User
+  User,
+  MapPin,
+  Phone,
+  Mail
 } from 'lucide-react';
-import Logo from '@/components/Logo';
-import AuthRequiredModal from '@/components/AuthRequiredModal';
-import api from '@/lib/api';
-import { useAuth } from '@/hooks/useAuth';
 import { useCartStore } from '@/store/cartStore';
 import { formatPrice, getCategoryLabel, getConditionLabel, getConditionColor, formatDate } from '@/lib/utils';
 import { Product } from '@/types';
 import { toast } from 'react-hot-toast';
+import ProductImage from '@/components/ProductImage';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export default function ProductDetailPage() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
-  const { isAuthenticated, user } = useAuth();
   const { addItem } = useCartStore();
+  
+  // Vérifier l'authentification depuis localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      setIsAuthenticated(!!token);
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch (err) {
+      console.error('Erreur lecture auth:', err);
+    }
+  }, []);
   
   const [product, setProduct] = useState<Product | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -54,13 +73,41 @@ export default function ProductDetailPage() {
   }, [id]);
 
   const fetchProduct = async () => {
+    if (!id) {
+      setError('ID produit manquant');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get(`/products/${id}`);
-      setProduct(response.data);
+      
+      console.log('🔍 Chargement produit:', id);
+      
+      const response = await fetch(`${API_URL}/products/${id}`);
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Produit introuvable');
+        }
+        throw new Error('Erreur lors du chargement');
+      }
+      
+      const data = await response.json();
+      console.log('✅ Produit reçu:', data);
+      
+      if (data && data.product) {
+        setProduct(data.product);
+      } else if (data) {
+        setProduct(data);
+      } else {
+        throw new Error('Format de données invalide');
+      }
+      
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erreur lors du chargement du produit');
+      console.error('❌ Erreur fetchProduct:', err);
+      setError(err.message || 'Erreur lors du chargement du produit');
     } finally {
       setIsLoading(false);
     }
@@ -126,61 +173,19 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!product) return;
 
-    // Vérifier si l'utilisateur est authentifié
     if (!isAuthenticated) {
-      setShowAuthPrompt(true);
+      toast.error('Veuillez vous connecter pour ajouter au panier');
+      router.push(`/auth/login?redirect=/products/${id}`);
       return;
     }
 
-    // Ajouter au panier si authentifié
     addItem(product);
     toast.success('Produit ajouté au panier !');
   };
 
-  const handleAuthRequired = (action: 'login' | 'register') => {
-    // Sauvegarder l'intention d'achat pour rediriger après connexion
-    if (product) {
-      localStorage.setItem('pendingAddToCart', JSON.stringify(product));
-    }
-    
-    if (action === 'login') {
-      router.push(`/auth/login?redirect=/products/${id}`);
-    } else {
-      router.push(`/auth/register?redirect=/products/${id}`);
-    }
-  };
-
-  const handleCloseAuthPrompt = () => {
-    setShowAuthPrompt(false);
-  };
-
-  // Vérifier s'il y a un produit en attente d'ajout au panier après connexion
-  useEffect(() => {
-    const pendingProduct = localStorage.getItem('pendingAddToCart');
-    if (pendingProduct && isAuthenticated) {
-      try {
-        const productToAdd = JSON.parse(pendingProduct);
-        localStorage.removeItem('pendingAddToCart');
-        addItem(productToAdd);
-        toast.success(`${productToAdd.name} a été ajouté à votre panier !`);
-      } catch (error) {
-        console.error('Erreur lors de l\'ajout du produit en attente:', error);
-      }
-    }
-  }, [isAuthenticated, addItem]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <Link href="/" className="flex items-center">
-                <Logo size="md" />
-              </Link>
-            </div>
-          </div>
-        </header>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -211,27 +216,17 @@ export default function ProductDetailPage() {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <Link href="/" className="flex items-center">
-                <Logo size="md" />
-              </Link>
-            </div>
-          </div>
-        </header>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Produit introuvable</h1>
-            <p className="text-gray-600 mb-8">{error}</p>
-            <Link 
-              href="/products"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Retour au catalogue
-            </Link>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center py-12 max-w-md mx-auto px-4">
+          <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Produit introuvable</h1>
+          <p className="text-gray-600 mb-8">{error}</p>
+          <Link 
+            href="/products"
+            className="inline-block bg-gradient-to-r from-green-700 to-green-900 text-white px-6 py-3 rounded-xl hover:from-green-800 hover:to-green-950 transition-all"
+          >
+            Retour au catalogue
+          </Link>
         </div>
       </div>
     );
@@ -239,56 +234,18 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center">
-              <Logo size="md" />
-            </Link>
-            
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/products" className="text-blue-600 font-medium">
-                Catalogue
-              </Link>
-              <Link href="/categories" className="text-gray-700 hover:text-blue-600 font-medium">
-                Catégories
-              </Link>
-              <Link href="/about" className="text-gray-700 hover:text-blue-600 font-medium">
-                À propos
-              </Link>
-            </nav>
-
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/auth/login"
-                className="text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Connexion
-              </Link>
-              <Link 
-                href="/auth/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                S&apos;inscrire
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
-          <Link href="/" className="hover:text-blue-600">Accueil</Link>
+          <Link href="/" className="hover:text-green-900">Accueil</Link>
           <span>/</span>
-          <Link href="/products" className="hover:text-blue-600">Catalogue</Link>
+          <Link href="/products" className="hover:text-green-900">Catalogue</Link>
           <span>/</span>
-          <Link href={`/products?category=${product.category}`} className="hover:text-blue-600">
+          <Link href={`/products?category=${product.category}`} className="hover:text-green-900">
             {getCategoryLabel(product.category)}
           </Link>
           <span>/</span>
-          <span className="text-gray-900">{product.name}</span>
+          <span className="text-gray-900 font-medium">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -337,7 +294,7 @@ export default function ProductDetailPage() {
                     key={image.url}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                      index === currentImageIndex ? 'border-blue-600' : 'border-gray-300'
+                      index === currentImageIndex ? 'border-green-900 ring-2 ring-green-200' : 'border-gray-300 hover:border-green-600'
                     }`}
                   >
                     <img
@@ -355,7 +312,7 @@ export default function ProductDetailPage() {
           <div className="space-y-6">
             {/* Category and Condition */}
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <div className="flex items-center space-x-2 text-green-900 bg-green-50 px-3 py-1 rounded-full border border-green-200">
                 {getCategoryIcon(product.category)}
                 <span className="text-sm font-medium">{getCategoryLabel(product.category)}</span>
               </div>
@@ -383,7 +340,7 @@ export default function ProductDetailPage() {
                         {formatPrice(product.originalPrice)}
                       </span>
                       <span className="bg-red-100 text-red-800 text-sm font-medium px-2 py-1 rounded">
-                        -{product.discountPercentage}%
+                        -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
                       </span>
                     </div>
                   )}
@@ -409,13 +366,24 @@ export default function ProductDetailPage() {
 
             {/* Actions */}
             <div className="space-y-3">
-              <button className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={() => {
+                  if (product.seller?.phone) {
+                    window.location.href = `tel:${product.seller.phone}`;
+                  } else if (product.seller?.email) {
+                    window.location.href = `mailto:${product.seller.email}`;
+                  } else {
+                    toast.error('Informations de contact du vendeur non disponibles');
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-green-700 to-green-900 text-white py-4 rounded-xl font-semibold hover:from-green-800 hover:to-green-950 transition-all shadow-lg hover:shadow-xl"
+              >
                 Contacter le vendeur
               </button>
               
               <button 
                 onClick={handleAddToCart}
-                className="w-full border border-blue-600 text-blue-600 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center space-x-2"
+                className="w-full border-2 border-green-700 text-green-900 py-4 rounded-xl font-semibold hover:bg-green-50 transition-colors flex items-center justify-center space-x-2"
               >
                 {isAuthenticated ? (
                   <ShoppingCart className="w-5 h-5" />
@@ -449,12 +417,12 @@ export default function ProductDetailPage() {
                   <span className="text-sm text-gray-700">Garantie vendeur 30 jours</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Truck className="w-5 h-5 text-blue-600" />
-                  <span className="text-sm text-gray-700">Livraison gratuite dès 50€</span>
+                  <Truck className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-gray-700">Livraison disponible</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <RefreshCw className="w-5 h-5 text-orange-600" />
-                  <span className="text-sm text-gray-700">Retour gratuit sous 14 jours</span>
+                  <RefreshCw className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-gray-700">Retour sous conditions</span>
                 </div>
               </div>
             </div>
@@ -609,14 +577,6 @@ export default function ProductDetailPage() {
           )}
         </div>
       )}
-
-      <AuthRequiredModal
-        isOpen={showAuthPrompt}
-        onClose={handleCloseAuthPrompt}
-        onLogin={() => handleAuthRequired('login')}
-        onRegister={() => handleAuthRequired('register')}
-        context="product"
-      />
     </div>
   );
 }

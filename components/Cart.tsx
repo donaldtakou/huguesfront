@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { X, Plus, Minus, Trash2, ShoppingBag, CreditCard, Clock, AlertCircle } from 'lucide-react';
 import { useCartStore } from '@/store/cartStore';
 import { formatPrice } from '@/lib/utils';
+import ProductImage from '@/components/ProductImage';
 
 const Cart = () => {
   const { 
@@ -159,13 +160,12 @@ const Cart = () => {
                     >
                       {/* Product Image */}
                       <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                        {item.product.images.length > 0 && (
-                          <img
-                            src={item.product.images.find(img => img.isPrimary)?.url || item.product.images[0]?.url}
-                            alt={item.product.name}
-                            className={`w-full h-full object-cover ${isExpired ? 'grayscale' : ''}`}
-                          />
-                        )}
+                        <ProductImage
+                          src={item.product.images?.find(img => img.isPrimary)?.url || item.product.images?.[0]?.url}
+                          alt={item.product.name}
+                          className={`w-full h-full ${isExpired ? 'grayscale' : ''}`}
+                          category={item.product.category}
+                        />
                       </div>
 
                       {/* Product Info */}

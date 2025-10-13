@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight, Package, Smartphone, Laptop, Tablet, Watch, Headphones, Monitor } from 'lucide-react';
 import { useCategories } from '@/hooks/useProducts';
+import ProductImage from '@/components/ProductImage';
 
 export default function CategoriesPage() {
   const { categories, isLoading } = useCategories();
@@ -97,10 +98,11 @@ export default function CategoriesPage() {
                 >
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden">
-                    <img
+                    <ProductImage
                       src={category.image}
                       alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full group-hover:scale-110 transition-transform duration-300"
+                      category={category.id}
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></div>
                     <div className={`absolute top-4 left-4 w-12 h-12 bg-gradient-to-r ${colorClass} rounded-xl flex items-center justify-center shadow-lg`}>

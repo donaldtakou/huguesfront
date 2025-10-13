@@ -101,7 +101,8 @@ export function useProducts(filters: ProductFilters = {}) {
 
       const response = await api.get('/products', { 
         params,
-        signal: abortControllerRef.current.signal
+        signal: abortControllerRef.current.signal,
+        timeout: 10000 // 10 secondes de timeout
       });
       
       const responseData = {
@@ -120,10 +121,94 @@ export function useProducts(filters: ProductFilters = {}) {
       if (err.name === 'CanceledError') {
         return; // Requête annulée, ne pas traiter comme une erreur
       }
+      
       console.error('Erreur lors du chargement des produits:', err);
-      setError('Erreur lors du chargement des produits');
-      setProducts([]);
-      setPagination(null);
+      
+      // Gestion spécifique des erreurs réseau
+      if (err.code === 'NETWORK_ERROR' || err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+        setError('Impossible de se connecter au serveur. Vérifiez que le backend est démarré sur le port 5000.');
+      } else if (err.response?.status === 404) {
+        setError('Service non trouvé. Vérifiez la configuration de l\'API.');
+      } else if (err.response?.status >= 500) {
+        setError('Erreur serveur. Veuillez réessayer plus tard.');
+      } else {
+        setError(err.response?.data?.message || 'Erreur lors du chargement des produits');
+      }
+      
+      // Ajouter des données de fallback pour permettre le test des images
+      console.warn('Utilisation des données de fallback pour le développement');
+      const fallbackProducts = [
+        {
+          _id: 'fallback-1',
+          name: 'iPhone 15 Pro Max',
+          description: 'Dernier iPhone avec puce A17 Pro - Mode développement',
+          price: 1200000,
+          originalPrice: 1400000,
+          category: 'smartphone',
+          brand: 'Apple',
+          condition: 'new',
+          images: [], // Pas d'images pour tester nos fallbacks
+          stock: 5,
+          seller: 'FastDeal Store',
+          isValidated: true,
+          isFeatured: true,
+          discountPercentage: 15
+        },
+        {
+          _id: 'fallback-2',
+          name: 'MacBook Pro M3',
+          description: 'Ordinateur portable professionnel - Mode développement',
+          price: 2500000,
+          category: 'laptop',
+          brand: 'Apple',
+          condition: 'new',
+          images: [],
+          stock: 3,
+          seller: 'FastDeal Store',
+          isValidated: true,
+          isFeatured: true,
+          discountPercentage: 0
+        },
+        {
+          _id: 'fallback-3',
+          name: 'iPad Air',
+          description: 'Tablette polyvalente pour le travail - Mode développement',
+          price: 800000,
+          category: 'tablet',
+          brand: 'Apple',
+          condition: 'new',
+          images: [],
+          stock: 8,
+          seller: 'FastDeal Store',
+          isValidated: true,
+          isFeatured: true,
+          discountPercentage: 0
+        },
+        {
+          _id: 'fallback-4',
+          name: 'Apple Watch Ultra',
+          description: 'Montre connectée premium - Mode développement',
+          price: 900000,
+          category: 'smartwatch',
+          brand: 'Apple',
+          condition: 'new',
+          images: [],
+          stock: 2,
+          seller: 'FastDeal Store',
+          isValidated: true,
+          isFeatured: true,
+          discountPercentage: 0
+        }
+      ];
+      
+      setProducts(fallbackProducts);
+      setPagination({
+        currentPage: 1,
+        totalPages: 1,
+        totalProducts: fallbackProducts.length,
+        hasNext: false,
+        hasPrev: false
+      });
     } finally {
       setIsLoading(false);
       abortControllerRef.current = null;

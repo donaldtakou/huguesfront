@@ -18,7 +18,7 @@ interface Message {
 
 const FAQ_RESPONSES = {
   livraison: {
-    content: "🚚 **Livraison & Expédition**\n\n• Livraison gratuite dès 50€\n• Expédition sous 24h\n• Suivi en temps réel\n• Livraison en 2-3 jours ouvrés",
+    content: "**Livraison & Expédition**\n\n• Livraison gratuite dès 50€\n• Expédition sous 24h\n• Suivi en temps réel\n• Livraison en 2-3 jours ouvrés",
     options: [
       { text: "Suivre ma commande", action: "track_order", icon: Package },
       { text: "Politique de retour", action: "return_policy", icon: Truck }
@@ -149,7 +149,7 @@ export default function Chatbot() {
       switch (action) {
         case 'human_support':
           addMessage(
-            "🧑‍💼 **Parler à un conseiller humain**\n\nNos conseillers sont disponibles :\n\n📞 **+33 1 23 45 67 89**\n📧 **support@fastdeal.fr**\n\n⏰ Lun-Ven : 9h-18h",
+            "**Parler à un conseiller humain**\n\nNos conseillers sont disponibles :\n\n**Téléphone:** +33 1 23 45 67 89\n**Email:** support@fastdeal.fr\n\n**Horaires:** Lun-Ven : 9h-18h",
             'bot',
             [
               { text: "Nouveau chat", action: "restart", icon: MessageCircle }
@@ -158,14 +158,14 @@ export default function Chatbot() {
           break;
         case 'email_support':
           window.open('mailto:support@fastdeal.fr?subject=Demande de support FastDeal');
-          addMessage("📧 Ouverture de votre client email...", 'bot');
+          addMessage("Ouverture de votre client email...", 'bot');
           break;
         case 'phone_support':
-          addMessage("📞 **Numéro de support :** +33 1 23 45 67 89\n\n⏰ Disponible Lun-Ven 9h-18h", 'bot');
+          addMessage("**Numéro de support :** +33 1 23 45 67 89\n\n**Disponible** Lun-Ven 9h-18h", 'bot');
           break;
         case 'catalog':
           window.open('/products', '_blank');
-          addMessage("🛍️ Ouverture du catalogue produits...", 'bot');
+          addMessage("Ouverture du catalogue produits...", 'bot');
           break;
         case 'restart':
           setMessages([]);
@@ -174,7 +174,7 @@ export default function Chatbot() {
           break;
         case 'track_order':
           addMessage(
-            "📦 **Suivi de commande**\n\nPour suivre votre commande :\n\n1. Vérifiez votre email de confirmation\n2. Cliquez sur le lien de suivi\n3. Ou connectez-vous à votre compte\n\nBesoin d'aide ? Contactez-nous avec votre numéro de commande.",
+            "**Suivi de commande**\n\nPour suivre votre commande :\n\n1. Vérifiez votre email de confirmation\n2. Cliquez sur le lien de suivi\n3. Ou connectez-vous à votre compte\n\nBesoin d'aide ? Contactez-nous avec votre numéro de commande.",
             'bot',
             [
               { text: "Mon compte", action: "account", icon: User },

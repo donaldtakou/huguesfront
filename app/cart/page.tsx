@@ -25,6 +25,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPrice, getCategoryLabel } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
+import ProductImage from '@/components/ProductImage';
 
 export default function CartPage() {
   const router = useRouter();
@@ -196,13 +197,12 @@ export default function CartPage() {
                     <div className="flex items-start space-x-4">
                       {/* Product Image */}
                       <div className="w-24 h-24 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                        {item.product.images.length > 0 && (
-                          <img
-                            src={item.product.images.find(img => img.isPrimary)?.url || item.product.images[0]?.url}
-                            alt={item.product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
+                        <ProductImage
+                          src={item.product.images?.find(img => img.isPrimary)?.url || item.product.images?.[0]?.url}
+                          alt={item.product.name}
+                          className="w-full h-full"
+                          category={item.product.category}
+                        />
                       </div>
 
                       {/* Product Info */}

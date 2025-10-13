@@ -13,7 +13,7 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
-  lastActivity: Date | null;
+  lastActivity: Date | string | null;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -125,7 +125,9 @@ export const useCartStore = create<CartStore>()(
 
         // Vider le panier si inactif depuis trop longtemps
         if (lastActivity) {
-          const hoursSinceActivity = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+          // S'assurer que lastActivity est un objet Date
+          const lastActivityDate = lastActivity instanceof Date ? lastActivity : new Date(lastActivity);
+          const hoursSinceActivity = (now.getTime() - lastActivityDate.getTime()) / (1000 * 60 * 60);
           if (hoursSinceActivity > INACTIVITY_HOURS && validItems.length > 0) {
             set({ 
               items: [],
@@ -189,6 +191,11 @@ export const useCartStore = create<CartStore>()(
         lastActivity: state.lastActivity
       }),
       onRehydrateStorage: () => (state) => {
+        // Transformer lastActivity en Date si c'est une string
+        if (state && state.lastActivity && typeof state.lastActivity === 'string') {
+          state.lastActivity = new Date(state.lastActivity);
+        }
+        
         // Nettoyer les articles expirés au chargement
         if (state) {
           state.clearExpiredItems();

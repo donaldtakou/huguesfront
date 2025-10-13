@@ -446,15 +446,16 @@ export default function ProductDetailPage() {
               {product.specifications && Object.keys(product.specifications).length > 0 && (
                 <div className="mt-8">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Caractéristiques</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      value && (
-                        <div key={key} className="flex justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="text-gray-600 capitalize">{key}:</span>
-                          <span className="font-medium text-gray-900">{String(value)}</span>
-                        </div>
-                      )
-                    ))}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(product.specifications).map(([key, value]) => {
+                        if (!value) return null;
+                        return (
+                          <div key={key} className="flex justify-between p-3 bg-gray-50 rounded-lg">
+                            <span className="text-gray-600 capitalize">{key}:</span>
+                            <span className="font-medium text-gray-900">{String(value)}</span>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               )}

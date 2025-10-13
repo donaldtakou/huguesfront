@@ -2,9 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+// Define test result types allowing any data
+type TestResult<T> = { status: string; message: string; data: T; };
+type TestsState = {
+  backendHealth: TestResult<any>;
+  productsAPI: TestResult<any>;
+  networkConfig: TestResult<any>;
+};
 
 export default function DiagnosticPage() {
-  const [tests, setTests] = useState({
+  const [tests, setTests] = useState<TestsState>({
     backendHealth: { status: 'testing', message: 'Test en cours...', data: null },
     productsAPI: { status: 'testing', message: 'Test en cours...', data: null },
     networkConfig: { status: 'testing', message: 'Test en cours...', data: null }
